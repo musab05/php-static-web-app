@@ -1,17 +1,16 @@
 <?php
 // student_portal/index.php
 session_start();
-require 'config.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
+// Dummy user session (replace with actual authentication)
+$_SESSION['user_id'] = 1;
+$_SESSION['user_name'] = "John Doe";
 
-$user_id = $_SESSION['user_id'];
-$query = $conn->prepare("SELECT * FROM students WHERE id = ?");
-$query->execute([$user_id]);
-$student = $query->fetch(PDO::FETCH_ASSOC);
+// Dummy data (replace with database queries)
+$courses = ["Math 101", "Physics 202", "History 303"];
+$attendance = ["Math 101" => "Present", "Physics 202" => "Absent", "History 303" => "Present"];
+$schedule = ["Math 101" => "Mon 10AM", "Physics 202" => "Wed 2PM", "History 303" => "Fri 1PM"];
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -23,28 +22,30 @@ $student = $query->fetch(PDO::FETCH_ASSOC);
 </head>
 <body>
     <div class="container mt-5">
-        <h2>Welcome, <?php echo htmlspecialchars($student['name']); ?>!</h2>
-        <nav>
-            <ul class="nav nav-tabs">
-                <li class="nav-item"><a class="nav-link active" href="dashboard.php">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="courses.php">Courses</a></li>
-                <li class="nav-item"><a class="nav-link" href="attendance.php">Attendance</a></li>
-                <li class="nav-item"><a class="nav-link" href="schedule.php">Schedule</a></li>
-                <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
-            </ul>
-        </nav>
-        <div class="mt-4">
-            <h3>Your Courses</h3>
-            <ul>
-                <?php
-                $courseQuery = $conn->prepare("SELECT courses.name FROM enrollments JOIN courses ON enrollments.course_id = courses.id WHERE enrollments.student_id = ?");
-                $courseQuery->execute([$user_id]);
-                while ($course = $courseQuery->fetch(PDO::FETCH_ASSOC)) {
-                    echo "<li>" . htmlspecialchars($course['name']) . "</li>";
-                }
-                ?>
-            </ul>
-        </div>
+        <h2>Welcome, <?php echo htmlspecialchars($_SESSION['user_name']); ?>!</h2>
+
+        <h3>Your Courses</h3>
+        <ul class="list-group">
+            <?php foreach ($courses as $course): ?>
+                <li class="list-group-item"><?php echo htmlspecialchars($course); ?></li>
+            <?php endforeach; ?>
+        </ul>
+
+        <h3 class="mt-4">Attendance</h3>
+        <ul class="list-group">
+            <?php foreach ($attendance as $course => $status): ?>
+                <li class="list-group-item"><?php echo htmlspecialchars($course . " - " . $status); ?></li>
+            <?php endforeach; ?>
+        </ul>
+
+        <h3 class="mt-4">Schedule</h3>
+        <ul class="list-group">
+            <?php foreach ($schedule as $course => $time): ?>
+                <li class="list-group-item"><?php echo htmlspecialchars($course . " - " . $time); ?></li>
+            <?php endforeach; ?>
+        </ul>
+
+        <a href="#" class="btn btn-danger mt-4">Logout</a>
     </div>
 </body>
 </html>
